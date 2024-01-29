@@ -50,7 +50,9 @@ def process_frames(frames):
     processed = []
 
     for frame in frames:
-        gray = cv2.cvtColor(frame[:, 200:], cv2.COLOR_BGR2GRAY)
+        print(f"frame>>>>>> {frame}")
+        gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+        # gray = cv2.cvtColor(frame[:, 200:], cv2.COLOR_RGB2GRAY)
         gray = cv2.resize(gray, (120, 120), interpolation=cv2.INTER_AREA)
         norm = (gray - gray.mean()) / (gray.std() + 1e-8)
         processed.append(norm)
@@ -134,6 +136,7 @@ def ctf_worker(task_queue, input_folder, output_folder, file_name, status):
                 break
 
             label, user, sample, seq_id = sample
+            print(f"label, usr, sample, seqa-id, input_folder >>>>> {label} {user} {sample} {seq_id} {input_folder}")
             frames = read_frames(label, user, sample, input_folder)
             frames = process_frames(frames)
 
@@ -190,7 +193,7 @@ def cbf_worker(task_queue, output_folder):
         output_path = os.path.join(output_folder, '{}.cbf'.format(prefix))
 
         subprocess.call(
-            ['python', 'ctf2bin.py', '--input', input_path, '--output', output_path, '--header', 'dataset\headers\stack.config', '--chunk_size',
+            ['python', 'ctf2bin.py', '--input', input_path, '--output', output_path, '--header', 'dataset/headers/stack.config', '--chunk_size',
              '131072'])
         logger.info('Created {}.cbf'.format(prefix))
 

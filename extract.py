@@ -41,16 +41,26 @@ def get_indices(frame_count, length):
 
     return indices
 
+def float_to_int(x):
+    if x == float('inf') or x == float('-inf'):
+        return float('nan') # or a large value you choose
+    return int(x)
 
 def read_and_write_frames(label, user, sample, sequence_length, input_folder, output_folder):
     """
     Reads frames for the given video and write to disk
     """
-    path = os.path.join(input_folder, '{:0>3}_{:0>3}_{:0>3}.mp4'.format(label + 1, user + 1, sample + 1))
+    path = os.path.join(input_folder, '{:0>3}_{:0>3}_{:0>3}_right.avi'.format(label + 1, user + 1, sample + 1))
 
     frames = []
-    reader = imageio.get_reader(path)
+    reader = imageio.get_reader(path, 'pyav')
+    print(f"reader >>>>>>> {reader}")
     length = reader.get_length()
+    # length = reader.count_frames()
+    # float_to_int(length)
+    ALOT = 1e6
+    length = max(min(length, ALOT), -ALOT)
+    print(f"length >>>>>> {length}")
 
     if length < sequence_length:
         indices = range(length)
@@ -83,7 +93,7 @@ def worker_method(queue, sequence_length, input_folder, output_folder):
             break
 
         read_and_write_frames(item[0], item[1], item[2], sequence_length, input_folder, output_folder)
-        logger.info('Processed {:0>3}_{:0>3}_{:0>3}.mp4'.format(item[0] + 1, item[1] + 1, item[2] + 1))
+        logger.info('Processed {:0>3}_{:0>3}_{:0>3}_right.avi'.format(item[0] + 1, item[1] + 1, item[2] + 1))
         queue.task_done()
 
 
